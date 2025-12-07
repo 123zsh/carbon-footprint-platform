@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于电碳因子的企业碳足迹平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 40px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #e9ecef;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card i {
+            font-size: 2.5rem;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+            color: white;
+            text-align: center;
+            padding: 50px 40px;
+        }
+        
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #059669;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .btn:hover {
+            background: transparent;
+            color: white;
+            border-color: white;
+            transform: scale(1.05);
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .features {
+                padding: 25px 20px;
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部区域 -->
+        <div class="header">
+            <h1>🏭 基于电碳因子的企业碳足迹平台</h1>
+            <p>严格按照您的思维导图架构设计的专业碳足迹计算与决策支持平台</p>
+            <p>帮助企业精确核算碳排放、评估CBAM税负压力、制定绿色投资决策</p>
+        </div>
+        
+        <!-- 功能特性 -->
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-calculator"></i>
+                <h3>CBAM税负压力测试</h3>
+                <p>精确计算企业碳配额成本，评估欧盟碳边境调节机制(CBAM)带来的税负压力</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>多情景碳足迹模拟器</h3>
+                <p>基于动态电碳因子，模拟不同生产情景下的碳排放变化和成本影响</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>时空碳强度热力图</h3>
+                <p>可视化展示不同地区、不同时间的用电碳强度，识别低碳用电时机</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-lightbulb"></i>
+                <h3>绿色投资决策支持</h3>
+                <p>提供科学的投资回报分析，帮助制定最优的绿色转型策略</p>
+            </div>
+        </div>
+        
+        <!-- 行动号召区域 -->
+        <div class="cta-section">
+            <h2>立即开始您的碳足迹计算之旅</h2>
+            <p>本平台完全按照您的架构图设计，包含了Scope 1/2计算、动态电碳因子预测、多情景模拟、CBAM税负评估等所有核心功能</p>
+            <a href="/calculator" class="btn">
+                <i class="fas fa-play-circle"></i> 开始计算碳足迹
+            </a>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>© 2024 基于电碳因子的企业碳足迹平台 | 严格按照您的思维导图架构设计</p>
+            <p>技术支持：基于Flask + Plotly + Pandas构建</p>
+        </div>
+    </div>
+</body>
+</html>
