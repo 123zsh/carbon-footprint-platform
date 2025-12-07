@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, send_file, session
+import os
+from flask import Flask, request, jsonify, render_template_string
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -112,6 +113,15 @@ class DynamicCarbonFactorSimulator:
                 return float(self.daily_factors.loc[date, 'medium_confidence'])
         except:
             return 0.8  # 默认值
+    
+    def get_yearly_factors(self, confidence_level='medium'):
+        """获取一年的电碳因子序列"""
+        if confidence_level == 'low':
+            return self.daily_factors['low_confidence']
+        elif confidence_level == 'high':
+            return self.daily_factors['high_confidence']
+        else:
+            return self.daily_factors['medium_confidence']
 
 # ==================== 3. 核心计算器 ====================
 class CarbonFootprintCalculator:
@@ -146,7 +156,7 @@ class CarbonFootprintCalculator:
         
         return {'total': round(total, 2), 'details': details}
     
-    def calculate_scope2(self, electricity_data, region, confidence_level='medium', use_dynamic=True):
+    def calculate_scope2(self, electricity_data, region='华东区域电网', confidence_level='medium', use_dynamic=True):
         """计算Scope 2排放"""
         details = []
         total = 0
@@ -274,15 +284,47 @@ class CarbonFootprintCalculator:
 # ==================== 4. Flask路由 ====================
 calculator = CarbonFootprintCalculator()
 
+# 首页HTML模板
+HOME_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>碳足迹计算平台</title>
+    <style>
+        body { font-family: Arial; padding: 50px; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .btn { background: #4CAF50; color: white; padding: 15px 30px; 
+               text-decoration: none; border-radius: 5px; margin: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏭 碳足迹计算平台</h1>
+        <p>专业的碳排放计算与CBAM税负评估系统</p>
+        <div>
+            <a href="/calculator" class="btn">开始计算</a>
+            <a href="/api/status" class="btn">API状态</a>
+            <a href="/api/emission_factors" class="btn">排放因子</a>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 @app.route('/')
 def home():
     """首页"""
-    return render_template('index.html')
+    return HOME_HTML
 
-@app.route('/calculator')
-def calculator_page():
-    """碳足迹计算器页面"""
-    return render_template('calculator.html')
+@app.route('/api/status')
+def api_status():
+    """API状态检查"""
+    return jsonify({
+        "status": "success", 
+        "message": "碳足迹平台运行正常",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat()
+    })
 
 @app.route('/api/calculate', methods=['POST'])
 def api_calculate():
@@ -318,11 +360,9 @@ def api_calculate():
                 export_data=export_data
             )
         
-        # 6. 准备返回数据
         response = {
             'success': True,
             'data': {
-                'company_info': data.get('company_info', {}),
                 'scope1': scope1_result,
                 'scope2': scope2_result,
                 'total_emissions': round(total_emissions, 2),
@@ -339,7 +379,7 @@ def api_calculate():
         return jsonify({
             'success': False,
             'error': str(e),
-            'message': '计算过程中出现错误'
+            'message': '计算错误'
         }), 400
 
 @app.route('/api/heatmap')
@@ -377,121 +417,30 @@ def api_emission_factors():
             'error': str(e)
         }), 400
 
-@app.route('/results')
-def results_page():
-    """结果展示页面"""
-    return render_template('results.html')
+@app.route('/calculator')
+def calculator_page():
+    """计算器页面"""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>碳足迹计算器</title>
+        <style>
+            body { font-family: Arial; padding: 20px; }
+            .form-group { margin: 10px 0; }
+            label { display: block; margin: 5px 0; }
+            input, select { padding: 8px; width: 300px; }
+        </style>
+    </head>
+    <body>
+        <h1>碳足迹计算器</h1>
+        <p>使用POST请求访问 /api/calculate 进行计算</p>
+    </body>
+    </html>
+    """
 
-@app.route('/api/scenarios', methods=['POST'])
-def api_scenarios():
-    """多情景模拟分析"""
-    try:
-        data = request.json
-        base_result = data.get('base_result', {})
-        scenarios = data.get('scenarios', [])
-        
-        results = []
-        for scenario in scenarios:
-            # 这里实现具体的情景模拟逻辑
-            result = {
-                'scenario_name': scenario.get('name', ''),
-                'emissions_reduction': round(np.random.uniform(5, 30), 1),  # 模拟减排比例
-                'cbam_tax_saving': round(np.random.uniform(1000, 50000), 2),  # 模拟税负节省
-                'roi_years': round(np.random.uniform(2, 8), 1)  # 模拟投资回报年限
-            }
-            results.append(result)
-        
-        return jsonify({
-            'success': True,
-            'data': results
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 400
-
-@app.route('/download_report', methods=['POST'])
-def download_report():
-    """下载报告"""
-    try:
-        data = request.json
-        
-        # 生成报告文本
-        report_text = f"""
-        企业碳足迹计算报告
-        ====================
-        
-        企业名称：{data.get('company_name', '')}
-        计算时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        
-        1. 排放总量
-        ----------
-        Scope 1 排放：{data.get('scope1_total', 0)} 吨CO₂
-        Scope 2 排放：{data.get('scope2_total', 0)} 吨CO₂
-        总排放量：{data.get('total_emissions', 0)} 吨CO₂
-        
-        2. 产品碳足迹
-        ----------
-        产品名称：{data.get('product_name', '')}
-        产量：{data.get('annual_output', 0)} {data.get('output_unit', '吨')}
-        产品碳足迹：{data.get('product_footprint', 0)} 吨CO₂/{data.get('output_unit', '吨')}
-        
-        3. CBAM税负分析
-        ------------
-        """
-        
-        if data.get('cbam_result'):
-            cbam = data['cbam_result']
-            report_text += f"""
-            出口产品：{cbam.get('export_product', '')}
-            出口量：{cbam.get('export_volume', 0)} {cbam.get('export_unit', '吨')}
-            预计CBAM税负：{cbam.get('total_tax_cny', 0)} 元人民币
-            """
-        
-        report_text += f"""
-        
-        4. 减排建议
-        ----------
-        {data.get('recommendations', '请根据具体情况制定减排措施。')}
-        
-        报告生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        """
-        
-        # 创建内存文件
-        mem_file = io.BytesIO()
-        mem_file.write(report_text.encode('utf-8'))
-        mem_file.seek(0)
-        
-        return send_file(
-            mem_file,
-            as_attachment=True,
-            download_name=f'碳足迹报告_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt',
-            mimetype='text/plain'
-        )
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 400
-
-# ==================== 5. 错误处理 ====================
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('error.html', error='页面未找到'), 404
-
-@app.errorhandler(500)
-def internal_error(e):
-    return render_template('error.html', error='服务器内部错误'), 500
-
-# ==================== 6. 启动应用 ====================
+# ==================== 5. 启动应用 ====================
 if __name__ == '__main__':
-    print("=" * 60)
-    print("企业碳足迹计算平台")
-    print("=" * 60)
-    print("访问地址: http://localhost:5000")
-    print("按 Ctrl+C 停止服务器")
-    print("=" * 60)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    print(f"碳足迹平台启动在端口: {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
