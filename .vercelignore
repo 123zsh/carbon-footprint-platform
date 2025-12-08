@@ -9,3 +9,5 @@ venv/
 .venv/
 *.egg-info/
 *.egg
+.vercel/
+.vercelignore
