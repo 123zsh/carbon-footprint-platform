@@ -2,11 +2,15 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.py",
+      "src": "requirements.txt",
       "use": "@vercel/python",
       "config": {
-        "pythonVersion": "3.9"
+        "pythonVersion": "3.9.13"
       }
+    },
+    {
+      "src": "app.py",
+      "use": "@vercel/python@3.9"
     }
   ],
   "routes": [
