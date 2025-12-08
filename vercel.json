@@ -1,22 +1,25 @@
 {
-  "version": 2,
-  "builds": [
+  "functions": {
+    "app.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "rewrites": [
     {
-      "src": "requirements.txt",
-      "use": "@vercel/python",
-      "config": {
-        "pythonVersion": "3.9.13"
-      }
-    },
-    {
-      "src": "app.py",
-      "use": "@vercel/python@3.9"
+      "source": "/(.*)",
+      "destination": "/app.py"
     }
   ],
-  "routes": [
+  "builds": [
     {
-      "src": "/(.*)",
-      "dest": "app.py"
+      "src": "*.py",
+      "use": "@vercel/python"
     }
-  ]
+  ],
+  "buildCommand": "pip install -r requirements.txt",
+  "installCommand": "pip install -r requirements.txt",
+  "outputDirectory": "",
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  }
 }
